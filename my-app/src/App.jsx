@@ -1,6 +1,7 @@
 // import './App.css';
 
-import Box from './Components/Box';
+import Apskritimas from './Components/Apskritimas';
+// import Box from './Components/Box';
 // import Simple from './Components/Simple';
 
 // const a = 5;
@@ -9,24 +10,44 @@ import Box from './Components/Box';
 const data = [
   {
     ls: '2px',
-    boxColor: 'green',
-    boxNumber: 68
+    apskritimasColor: 'green',
+    apskritimasNumber: 68
   },
     {
     ls: '1px',
-    boxColor: 'yellow',
-    boxNumber: 45
+    apskritimasColor: 'yellow',
+    apskritimasNumber: 45
   },
     {
     ls: '-2px',
-    boxColor: 'white',
-    boxNumber: 90
+    apskritimasColor: 'white',
+    apskritimasNumber: 90
   },
     {
     ls: '4px',
-    boxColor: 'pink',
-    boxNumber: 101
-  }
+    apskritimasColor: 'pink',
+    apskritimasNumber: 101
+  },
+  {
+    ls: '3px',
+    apskritimasColor: 'red',
+    apskritimasNumber: 18
+  },
+    {
+    ls: '1px',
+    apskritimasColor: 'purple',
+    apskritimasNumber: 25
+  },
+    {
+    ls: '-1px',
+    apskritimasColor: 'blue',
+    apskritimasNumber: 9
+  },
+    {
+    ls: '5px',
+    apskritimasColor: 'orange',
+    apskritimasNumber: 201
+  },
 ];
 
 
@@ -34,7 +55,7 @@ function App() {
 
   return (
     <>
-    {data.map((box, index) => <Box key={index} boxColor={box.boxColor} ls={box.ls} boxNumber={box.boxNumber} />)}
+    {data.map((apskritimas, index) => <Apskritimas key={index} apskritimasColor={apskritimas.apskritimasColor} ls={apskritimas.ls} apskritimasNumber={apskritimas.apskritimasNumber} />)}
     </>
   );
 
