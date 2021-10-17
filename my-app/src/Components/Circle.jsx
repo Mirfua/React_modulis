@@ -1,10 +1,10 @@
 
 
-function Circle({color, buttonText}) {
+function Circle({buttonText}) {
 
     return (
 
-        <div className="circle" style={ {backgroundColor:color}  }>
+        <div className="circle">
             <button>{buttonText}</button>
         </div>
 
