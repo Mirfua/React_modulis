@@ -1,89 +1,124 @@
-import { useState, useEffect } from "react";
-import FieldAnimal from "./Components/FieldAnimal";
-import idGenerator from "./Common/idGenerator";
-
-
+import axios from "axios";
+import { useEffect, useRef, useState } from "react";
+import ZooCreate from "./Components/ZooCreate";
+import ZooList from "./Components/ZooList";
+import ZooModal from "./Components/ZooModal";
+import ZooNav from "./Components/ZooNav";
+import animalSort from "./Common/animalsSort";
 function App() {
 
-    const [field, setField] = useState([]);
-    const [fieldNamber, setFieldNamber] = useState(1);
 
-    const add = (what) => {
-        const fieldCopy = field.slice();
-        fieldCopy.push({
-            id: idGenerator(),
-            animal: what,
-            field: parseInt(fieldNamber)
+    const [animals, setAnimals] = useState([]);
+    const [lastUpdate, setLastUpdate] = useState(Date.now())
+    const [showModal, setShowModal] = useState(false)
+    const [modalAnimal, setModalAnimal] = useState({
+        name: '',
+        type: '',
+        weight: '',
+        born: ''
+    })
+    const [types, setTypes] = useState([])
+    const [filterBy, setFilterBy] = useState('')
+    const [searchBy, setSearchBy] = useState('')
+    // const [sortBy, setSortBy] = useState('')
+    const sortBy = useRef('');
+
+    const dateOnly = (data) => {
+        return data.map(a => {
+            a.born = a.born.slice(0, 10);
+            return a;
         });
-        setField(fieldCopy);
-        localStorage.setItem('animals', JSON.stringify(fieldCopy))
     }
 
-    const selectField = e => {
-        setFieldNamber(e.target.value);
+    const sort = (by) => {
+        setAnimals(animalSort(animals, by));
+        sortBy.current = by;
     }
 
-    const goHome = (id) => {
-        const fieldCopy = field.slice();
-        const ind = fieldCopy.findIndex(e => e.id === id);
-        fieldCopy.splice(ind, 1);
-        setField(fieldCopy);
-        localStorage.setItem('animals', JSON.stringify(fieldCopy))
-    }
-
-    const groupGoHome = (group) => {
-        const fieldCopy = field.slice();
-        while(true) {
-            const ind = fieldCopy.findIndex(e => e.animal === group);
-            if (ind < 0) {
-                break;
-            }
-            fieldCopy.splice(ind, 1);
-        }
-        setField(fieldCopy);
-        localStorage.setItem('animals', JSON.stringify(fieldCopy))
-    }
+    // useEffect(() => {
+    //     if (sortBy) {
+    //         setAnimals(animalSort(animals, sortBy));
+    //     }
+    // }, [sortBy])
 
     useEffect(() => {
-        const animalsFromStorage = localStorage.getItem('animals');
-        if (null !== animalsFromStorage) {
-            setField(JSON.parse(animalsFromStorage));
+        if (filterBy) {
+        axios.get('http://localhost:3003/animals-filter/'+filterBy)
+            .then(res => {
+                setAnimals(animalSort(dateOnly(res.data), sortBy.current));
+            })
         }
-    }, []);
+    }, [filterBy])
 
+    useEffect(() => {
+        if (searchBy) {
+        axios.get('http://localhost:3003/animals-name/?s='+searchBy)
+            .then(res => {
+                setAnimals(animalSort(dateOnly(res.data), sortBy.current));
+            })
+        }
+    }, [searchBy])
 
+    useEffect(() => {
+        axios.get('http://localhost:3003/animals')
+            .then(res => {
+                setAnimals(animalSort(dateOnly(res.data), sortBy.current));
+                // setAnimals(dateOnly(res.data));
+            })
+    }, [lastUpdate])
+
+    useEffect(() => {
+        axios.get('http://localhost:3003/animals-type')
+            .then(res => {
+                setTypes(res.data);
+            })
+    }, [lastUpdate])
+
+    const create = animal => {
+        axios.post('http://localhost:3003/animals', animal)
+            .then(() => {
+                setLastUpdate(Date.now());
+            })
+    }
+
+    const edit = (animal, id) => {
+        setShowModal(false);
+        axios.put('http://localhost:3003/animals/'+id, animal)
+            .then(() => {
+                setLastUpdate(Date.now());
+            })
+    }
+
+    const remove = (id) => {
+        setShowModal(false);
+        axios.delete('http://localhost:3003/animals/'+id)
+            .then(res => {
+                console.log(res.data);
+                setLastUpdate(Date.now());
+            })
+    }
+
+    const reset = () => {
+        setLastUpdate(Date.now());
+    }
+
+    const modal = (animal) => {
+        setShowModal(true);
+        setModalAnimal(animal);
+    }
+
+    const hide = () => {
+        setShowModal(false);
+    }
 
     return (
-        <>
-            <div className="field">
-                <div className="field__part">
-                    {field.map((fieldAnimal, i) => <FieldAnimal key={i} field={1} fieldAnimal={fieldAnimal} goHome={goHome}></FieldAnimal>)}
-                </div>
-                <div className="field__part">
-                    {field.map((fieldAnimal, i) => <FieldAnimal key={i} field={2} fieldAnimal={fieldAnimal} goHome={goHome}></FieldAnimal>)}
-                </div>
-                <div className="field__part">
-                    {field.map((fieldAnimal, i) => <FieldAnimal key={i} field={3} fieldAnimal={fieldAnimal} goHome={goHome}></FieldAnimal>)}
-                </div>
-            </div>
-            <div className="buttons-holder">
-                <button onClick={() => add('cow')}>Add cow</button>
-                <button onClick={() => add('sheep')}>Add sheep</button>
-                <button onClick={() => add('horse')}>Add horse</button>
-                <select value={fieldNamber} onChange={selectField}>
-                    <option value={1}>Field One</option>
-                    <option value={2}>Field Two</option>
-                    <option value={3}>Field Three</option>
-                </select>
-            </div>
-            <div className="buttons-holder">
-                <button onClick={() => groupGoHome('cow')}>Go cows</button>
-                <button onClick={() => groupGoHome('sheep')}>Go sheeps</button>
-                <button onClick={() => groupGoHome('horse')}>Go horses</button>
-            </div>
-        </>
-    );
-
+        <div className="zoo">
+            <ZooNav types={types} search={setSearchBy} filter={setFilterBy} sort={sort} reset={reset}></ZooNav>
+            <ZooCreate create={create}></ZooCreate>
+            <ZooList animals={animals} modal={modal}></ZooList>
+            <ZooModal edit={edit} remove={remove} hide={hide} animal={modalAnimal} showModal={showModal}></ZooModal>
+        </div>
+    )
 }
 
 export default App;
