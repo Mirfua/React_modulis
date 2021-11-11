@@ -332,3 +332,53 @@ h1 {
         }
     }
 }
+
+.antarctica {
+    h2 {
+        color: darkcyan;
+    }
+    &__menu {
+        padding: 20px;
+        background-color: darkturquoise;
+        display: flex;
+        justify-content: flex-start;
+        align-items: center;
+        color: darkcyan;
+        li {
+            list-style: none;
+            a {
+                color: white;
+                padding: 0 15px;
+                text-decoration: none;
+            }
+        }
+    }
+}
+
+.context {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    padding: 20px;
+    background-color: darkturquoise;
+    button {
+        background-color: dodgerblue;
+    }
+    .family {
+        margin: 20px;
+        padding: 10px;
+        border: 1px solid dodgerblue;
+        h2 {
+            color: whitesmoke;
+        }
+    }
+}
+
+.reducer {
+    &__buttons {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+}
